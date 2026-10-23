@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 font-sans min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white shadow-md">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-wide">Dashboard</h1>
+            <div class="flex items-center space-x-4">
+                <span id="date-display" class="text-sm opacity-90"></span>
+                <div class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center font-bold">U</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8 flex-grow">
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h3 class="text-sm font-medium text-slate-500">Total Users</h3>
+                <p class="text-3xl font-bold text-slate-800 mt-2">12,480</p>
+                <span class="text-xs text-emerald-600 font-semibold mt-1 inline-block">+12% from last month</span>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h3 class="text-sm font-medium text-slate-500">Active Sessions</h3>
+                <p class="text-3xl font-bold text-slate-800 mt-2">1,245</p>
+                <span class="text-xs text-emerald-600 font-semibold mt-1 inline-block">+4% from yesterday</span>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h3 class="text-sm font-medium text-slate-500">Conversion Rate</h3>
+                <p class="text-3xl font-bold text-slate-800 mt-2">3.4%</p>
+                <span class="text-xs text-rose-600 font-semibold mt-1 inline-block">-0.2% from last week</span>
+            </div>
+        </div>
+
+        <!-- Interactive Section -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-bold text-slate-800 mb-4">Quick Task Manager</h2>
+            <div class="flex gap-4 mb-4">
+                <input type="text" id="task-input" placeholder="Add a new task..." class="flex-grow px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <button onclick="addTask()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition">Add</button>
+            </div>
+            <ul id="task-list" class="divide-y divide-slate-100">
+                <!-- Tasks will appear here -->
+            </ul>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-sm text-slate-500">
+        &copy; 2026 Interactive Dashboard. All rights reserved.
+    </footer>
+
+    <script>
+        // Display current date
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('date-display').innerText = new Date().toLocaleDateString('en-US', options);
+
+        // Task Manager functionality
+        function addTask() {
+            const input = document.getElementById('task-input');
+            const taskText = input.value.trim();
+            if(!taskText) return;
+
+            const list = document.getElementById('task-list');
+            const li = document.createElement('li');
+            li.className = "py-3 flex justify-between items-center text-slate-700";
+            li.innerHTML = `
+                <span>${taskText}</span>
+                <button onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700 text-sm font-medium">Delete</button>
+            `;
+            list.appendChild(li);
+            input.value = '';
+        }
+    </script>
+</body>
+</html>
