@@ -3,82 +3,809 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Dashboard</title>
+    <title>Test UI</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-100 font-sans min-h-screen flex flex-col">
-
-    <!-- Header -->
-    <header class="bg-indigo-600 text-white shadow-md">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold tracking-wide">Dashboard</h1>
-            <div class="flex items-center space-x-4">
-                <span id="date-display" class="text-sm opacity-90"></span>
-                <div class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center font-bold">U</div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="container mx-auto px-6 py-8 flex-grow">
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h3 class="text-sm font-medium text-slate-500">Total Users</h3>
-                <p class="text-3xl font-bold text-slate-800 mt-2">12,480</p>
-                <span class="text-xs text-emerald-600 font-semibold mt-1 inline-block">+12% from last month</span>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h3 class="text-sm font-medium text-slate-500">Active Sessions</h3>
-                <p class="text-3xl font-bold text-slate-800 mt-2">1,245</p>
-                <span class="text-xs text-emerald-600 font-semibold mt-1 inline-block">+4% from yesterday</span>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h3 class="text-sm font-medium text-slate-500">Conversion Rate</h3>
-                <p class="text-3xl font-bold text-slate-800 mt-2">3.4%</p>
-                <span class="text-xs text-rose-600 font-semibold mt-1 inline-block">-0.2% from last week</span>
-            </div>
-        </div>
-
-        <!-- Interactive Section -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-            <h2 class="text-lg font-bold text-slate-800 mb-4">Quick Task Manager</h2>
-            <div class="flex gap-4 mb-4">
-                <input type="text" id="task-input" placeholder="Add a new task..." class="flex-grow px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <button onclick="addTask()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition">Add</button>
-            </div>
-            <ul id="task-list" class="divide-y divide-slate-100">
-                <!-- Tasks will appear here -->
-            </ul>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-4 text-center text-sm text-slate-500">
-        &copy; 2026 Interactive Dashboard. All rights reserved.
-    </footer>
-
-    <script>
-        // Display current date
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('date-display').innerText = new Date().toLocaleDateString('en-US', options);
-
-        // Task Manager functionality
-        function addTask() {
-            const input = document.getElementById('task-input');
-            const taskText = input.value.trim();
-            if(!taskText) return;
-
-            const list = document.getElementById('task-list');
-            const li = document.createElement('li');
-            li.className = "py-3 flex justify-between items-center text-slate-700";
-            li.innerHTML = `
-                <span>${taskText}</span>
-                <button onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700 text-sm font-medium">Delete</button>
-            `;
-            list.appendChild(li);
-            input.value = '';
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
         }
+        .header-font {
+            font-family: 'Fredoka', sans-serif;
+        }
+        
+        /* Custom UI Shadows & Borders matching classic hand-drawn / retro UI */
+        .retro-box {
+            border: 2.5px solid #2d3748;
+            box-shadow: 2px 2px 0px #2d3748;
+        }
+        .retro-btn {
+            border: 2.5px solid #2d3748;
+            box-shadow: 0 4px 0 #2d3748;
+            transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.15s ease;
+        }
+        .retro-btn:active, .retro-btn.pressing {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #2d3748;
+        }
+
+        .stat-circle {
+            border: 2.5px solid #2d3748;
+            box-shadow: 0 4px 0 #2d3748;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            width: clamp(3.8rem, 9.5vw, 5.4rem);
+            height: clamp(3.8rem, 9.5vw, 5.4rem);
+        }
+        .stat-circle:active, .stat-circle.pressing {
+            transform: translateY(3px) scale(0.96);
+            box-shadow: 0 1px 0 #2d3748;
+            background-color: #93c5fd !important;
+        }
+
+        /* Pulse animation on Training Level Up */
+        @keyframes levelUpPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+            50% { transform: scale(1.15); box-shadow: 0 0 0 12px rgba(59, 130, 246, 0); }
+            100% { transform: scale(1); box-shadow: 0 4px 0 #2d3748; }
+        }
+        .level-up-anim {
+            animation: levelUpPulse 0.6s ease-out;
+        }
+
+        /* Pulse highlight for preview */
+        .stat-preview-active {
+            background-color: #fef08a !important; /* Soft yellow highlight */
+            border-color: #eab308 !important;
+            transform: scale(1.03);
+            transition: all 0.1s ease;
+        }
+
+        /* Health / Energy bar styling */
+        .energy-bar-container {
+            border: 3px solid #2d3748;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 2px 2px 0px #2d3748;
+        }
+        .energy-bar-fill {
+            background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+            transition: width 0.3s ease;
+        }
+
+        /* Custom scrollbar for event log */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-200 min-h-screen min-h-[100dvh] flex items-center justify-center p-2 sm:p-4 md:p-6 text-slate-800">
+
+    <!-- Device Mode Badge Header -->
+    <div class="fixed top-2 right-4 z-40 flex items-center gap-2 bg-white/90 backdrop-blur border-2 border-slate-800 rounded-full px-3 py-1 text-xs font-bold shadow-md">
+        <span id="device-mode-badge" class="flex items-center gap-1.5 text-slate-700">
+            <span id="device-icon">💻</span> <span id="device-text">Desktop Mode</span>
+        </span>
+        <button onclick="toggleDeviceModeOverride()" class="text-[10px] text-blue-600 hover:underline border-l border-slate-300 pl-2">
+            Switch View
+        </button>
+    </div>
+
+    <!-- Main Game Container: Dynamic Layout (Single Column on Mobile/Tablet, Dual-Panel Widescreen on Desktop) -->
+    <div id="main-container" class="w-full max-w-[834px] lg:max-w-5xl h-[95vh] h-[95dvh] max-h-[1194px] bg-white rounded-3xl border-4 border-slate-800 shadow-2xl p-4 md:p-6 flex flex-col lg:flex-row gap-4 md:gap-6 justify-between relative overflow-hidden transition-all duration-300">
+
+        <!-- LEFT/PRIMARY PANEL: Game Interface -->
+        <div class="flex-1 flex flex-col justify-between h-full min-w-0">
+
+            <!-- TOP BAR: Calendar & Energy/Stamina Bar -->
+            <div class="flex items-center gap-3 sm:gap-4 md:gap-6 mb-3 md:mb-5">
+                <!-- Top-Left Calendar Widget -->
+                <div class="w-20 sm:w-24 md:w-28 border-2 border-slate-800 rounded-xl overflow-hidden bg-slate-800 flex flex-col shadow-[3px_3px_0_#2d3748] flex-shrink-0">
+                    <div id="cal-month" class="bg-[#bfdbfe] text-slate-900 font-bold text-center py-1 text-sm sm:text-base md:text-lg border-b-2 border-slate-800 tracking-wider">
+                        JAN
+                    </div>
+                    <div id="cal-day" class="bg-[#dbeafe] text-slate-900 font-bold text-center py-1.5 sm:py-2 md:py-3 text-xl sm:text-2xl md:text-3xl header-font">
+                        27
+                    </div>
+                </div>
+
+                <!-- Top Progress Bar (Stamina/Energy) -->
+                <div class="flex-1 flex flex-col justify-center">
+                    <div class="flex justify-between items-center mb-1.5 px-1">
+                        <span class="text-xs sm:text-sm font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">
+                            ⚡ Stamina
+                        </span>
+                        <span id="energy-text" class="text-xs sm:text-sm font-extrabold text-slate-700">100 / 100</span>
+                    </div>
+                    <div class="energy-bar-container h-10 sm:h-12 md:h-14 bg-slate-700 rounded-2xl p-1 relative overflow-hidden">
+                        <div id="energy-bar" class="energy-bar-fill h-full rounded-xl w-full flex items-center justify-end pr-2">
+                            <!-- Subtle shine effect -->
+                            <div class="w-full h-1/2 bg-white/20 rounded-t-xl absolute top-0 left-0"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CENTRAL CONTENT AREA: Character/Event View Area -->
+            <div class="flex-1 border-3 border-slate-800 rounded-2xl bg-slate-50 mb-3 md:mb-5 p-4 md:p-6 flex flex-col relative overflow-hidden shadow-inner">
+                <!-- Background Decoration / Character Box -->
+                <div class="flex-1 flex flex-col items-center justify-center py-4 relative">
+                    
+                    <!-- Floating Toast Effect for Stat Gain -->
+                    <div id="floating-popups" class="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-20"></div>
+
+                    <!-- Animated Character Avatar -->
+                    <div id="character-avatar" class="relative transition-transform duration-200">
+                        <div class="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 bg-amber-100 border-4 border-slate-800 rounded-full flex items-center justify-center shadow-lg relative overflow-hidden">
+                            <!-- Simple Cute Pixel/SVG Knight Avatar -->
+                            <svg class="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 text-slate-800" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                            </svg>
+                            <!-- Expression Badge -->
+                            <span id="char-status-emoji" class="absolute bottom-1 right-1 text-2xl sm:text-3xl md:text-4xl">😊</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 md:mt-4 text-center">
+                        <h2 class="font-bold text-slate-800 text-lg sm:text-xl md:text-2xl header-font" id="char-title">Apprentice Adventurer</h2>
+                        <p class="text-xs sm:text-sm md:text-base text-slate-500 font-medium mt-0.5" id="char-status-text">Ready for daily activities</p>
+                    </div>
+                </div>
+
+                <!-- Event Log Overlay (Mobile View) -->
+                <div class="lg:hidden h-28 sm:h-32 bg-white border-2 border-slate-800 rounded-xl p-3 overflow-y-auto text-xs sm:text-sm font-mono text-slate-700 shadow-sm flex flex-col-reverse" id="event-log-mobile">
+                    <div class="text-slate-400 italic">Welcome! Hold down any button to preview stats, release over it to perform action.</div>
+                </div>
+            </div>
+
+            <!-- STATS GRID TABLE (6 Columns: STR, DEX, CON, INT, LUK, Ability Points) -->
+            <div class="mb-3 md:mb-5">
+                <div class="border-2.5 border-slate-800 rounded-xl overflow-hidden shadow-[3px_3px_0_#2d3748]">
+                    <!-- Header Row (Light Blue) -->
+                    <div class="grid grid-cols-6 bg-[#bfdbfe] border-b-2 border-slate-800 text-center font-bold text-xs sm:text-base md:text-lg text-slate-900 py-2">
+                        <div class="border-r border-slate-400">STR</div>
+                        <div class="border-r border-slate-400">DEX</div>
+                        <div class="border-r border-slate-400">CON</div>
+                        <div class="border-r border-slate-400">INT</div>
+                        <div class="border-r border-slate-400">LUK</div>
+                        <div class="text-[10px] sm:text-xs md:text-sm leading-tight flex items-center justify-center font-extrabold px-0.5">Ability points</div>
+                    </div>
+                    <!-- Values Row (White Background) -->
+                    <div class="grid grid-cols-6 bg-white text-center font-bold text-base sm:text-xl md:text-2xl text-slate-800 py-2.5 md:py-3.5">
+                        <div id="cell-STR" class="border-r border-slate-300 transition-colors duration-150 flex flex-col items-center justify-center min-h-[44px]">
+                            <span id="val-STR">62</span>
+                            <span id="prev-STR" class="text-[10px] sm:text-xs text-green-600 font-extrabold hidden leading-none">+0</span>
+                        </div>
+                        <div id="cell-DEX" class="border-r border-slate-300 transition-colors duration-150 flex flex-col items-center justify-center min-h-[44px]">
+                            <span id="val-DEX">43</span>
+                            <span id="prev-DEX" class="text-[10px] sm:text-xs text-green-600 font-extrabold hidden leading-none">+0</span>
+                        </div>
+                        <div id="cell-CON" class="border-r border-slate-300 transition-colors duration-150 flex flex-col items-center justify-center min-h-[44px]">
+                            <span id="val-CON">21</span>
+                            <span id="prev-CON" class="text-[10px] sm:text-xs text-green-600 font-extrabold hidden leading-none">+0</span>
+                        </div>
+                        <div id="cell-INT" class="border-r border-slate-300 transition-colors duration-150 flex flex-col items-center justify-center min-h-[44px]">
+                            <span id="val-INT">4</span>
+                            <span id="prev-INT" class="text-[10px] sm:text-xs text-green-600 font-extrabold hidden leading-none">+0</span>
+                        </div>
+                        <div id="cell-LUK" class="border-r border-slate-300 transition-colors duration-150 flex flex-col items-center justify-center min-h-[44px]">
+                            <span id="val-LUK">31</span>
+                            <span id="prev-LUK" class="text-[10px] sm:text-xs text-green-600 font-extrabold hidden leading-none">+0</span>
+                        </div>
+                        <div id="cell-AP" class="transition-colors duration-150 flex flex-col items-center justify-center min-h-[44px]">
+                            <span id="val-AP">0</span>
+                            <span id="prev-AP" class="text-[10px] sm:text-xs text-green-600 font-extrabold hidden leading-none">+0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE ACTION CIRCLES WITH DESKTOP HOTKEYS -->
+            <div id="stat-buttons-container" class="flex justify-around items-center px-1 mb-4 md:mb-6 touch-none">
+                <!-- STR (Key 1) -->
+                <button data-stat="STR" data-key="1" data-base="3" data-stamina="15" 
+                    class="stat-btn stat-circle rounded-full bg-[#bfdbfe] hover:bg-[#93c5fd] flex flex-col items-center justify-center cursor-pointer select-none text-slate-800 touch-none p-1 relative">
+                    <span class="desktop-hotkey absolute -top-2 -right-1 bg-slate-800 text-white rounded-full w-5 h-5 text-[10px] font-black items-center justify-center border border-white hidden sm:flex">1</span>
+                    <span class="font-bold text-[11px] sm:text-xs md:text-sm leading-none pointer-events-none">STR</span>
+                    <span id="level-STR" class="text-[10px] sm:text-xs font-black text-blue-700 pointer-events-none mt-0.5">Lv. 1</span>
+                    <div class="flex gap-1 mt-1 pointer-events-none" id="dots-STR">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                    </div>
+                </button>
+
+                <!-- DEX (Key 2) -->
+                <button data-stat="DEX" data-key="2" data-base="2" data-stamina="12" 
+                    class="stat-btn stat-circle rounded-full bg-[#bfdbfe] hover:bg-[#93c5fd] flex flex-col items-center justify-center cursor-pointer select-none text-slate-800 touch-none p-1 relative">
+                    <span class="desktop-hotkey absolute -top-2 -right-1 bg-slate-800 text-white rounded-full w-5 h-5 text-[10px] font-black items-center justify-center border border-white hidden sm:flex">2</span>
+                    <span class="font-bold text-[11px] sm:text-xs md:text-sm leading-none pointer-events-none">DEX</span>
+                    <span id="level-DEX" class="text-[10px] sm:text-xs font-black text-blue-700 pointer-events-none mt-0.5">Lv. 1</span>
+                    <div class="flex gap-1 mt-1 pointer-events-none" id="dots-DEX">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                    </div>
+                </button>
+
+                <!-- CON (Key 3) -->
+                <button data-stat="CON" data-key="3" data-base="2" data-stamina="10" 
+                    class="stat-btn stat-circle rounded-full bg-[#bfdbfe] hover:bg-[#93c5fd] flex flex-col items-center justify-center cursor-pointer select-none text-slate-800 touch-none p-1 relative">
+                    <span class="desktop-hotkey absolute -top-2 -right-1 bg-slate-800 text-white rounded-full w-5 h-5 text-[10px] font-black items-center justify-center border border-white hidden sm:flex">3</span>
+                    <span class="font-bold text-[11px] sm:text-xs md:text-sm leading-none pointer-events-none">CON</span>
+                    <span id="level-CON" class="text-[10px] sm:text-xs font-black text-blue-700 pointer-events-none mt-0.5">Lv. 1</span>
+                    <div class="flex gap-1 mt-1 pointer-events-none" id="dots-CON">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                    </div>
+                </button>
+
+                <!-- INT (Key 4) -->
+                <button data-stat="INT" data-key="4" data-base="1" data-stamina="8" 
+                    class="stat-btn stat-circle rounded-full bg-[#bfdbfe] hover:bg-[#93c5fd] flex flex-col items-center justify-center cursor-pointer select-none text-slate-800 touch-none p-1 relative">
+                    <span class="desktop-hotkey absolute -top-2 -right-1 bg-slate-800 text-white rounded-full w-5 h-5 text-[10px] font-black items-center justify-center border border-white hidden sm:flex">4</span>
+                    <span class="font-bold text-[11px] sm:text-xs md:text-sm leading-none pointer-events-none">INT</span>
+                    <span id="level-INT" class="text-[10px] sm:text-xs font-black text-blue-700 pointer-events-none mt-0.5">Lv. 1</span>
+                    <div class="flex gap-1 mt-1 pointer-events-none" id="dots-INT">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                    </div>
+                </button>
+
+                <!-- LUK (Key 5) -->
+                <button data-stat="LUK" data-key="5" data-base="2" data-stamina="12" 
+                    class="stat-btn stat-circle rounded-full bg-[#bfdbfe] hover:bg-[#93c5fd] flex flex-col items-center justify-center cursor-pointer select-none text-slate-800 touch-none p-1 relative">
+                    <span class="desktop-hotkey absolute -top-2 -right-1 bg-slate-800 text-white rounded-full w-5 h-5 text-[10px] font-black items-center justify-center border border-white hidden sm:flex">5</span>
+                    <span class="font-bold text-[11px] sm:text-xs md:text-sm leading-none pointer-events-none">LUK</span>
+                    <span id="level-LUK" class="text-[10px] sm:text-xs font-black text-blue-700 pointer-events-none mt-0.5">Lv. 1</span>
+                    <div class="flex gap-1 mt-1 pointer-events-none" id="dots-LUK">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                    </div>
+                </button>
+            </div>
+
+            <!-- BOTTOM ACTION BAR -->
+            <div class="flex items-center justify-between gap-3 md:gap-4">
+                <button id="btn-rest" data-action="rest" class="action-btn retro-btn flex-1 bg-[#bbf7d0] hover:bg-[#86efac] active:bg-[#4ade80] text-slate-800 font-bold py-3.5 sm:py-4 px-3 rounded-2xl text-center text-sm sm:text-base md:text-lg cursor-pointer relative">
+                    <span class="desktop-hotkey absolute -top-2 -right-1 bg-slate-800 text-white rounded-full w-5 h-5 text-[10px] font-black items-center justify-center border border-white hidden sm:flex">R</span>
+                    Rest
+                </button>
+
+                <button id="btn-recreation" data-action="recreation" class="action-btn retro-btn flex-1 bg-[#fef08a] hover:bg-[#fde047] active:bg-[#facc15] text-slate-800 font-bold py-3.5 sm:py-4 px-3 rounded-2xl text-center text-sm sm:text-base md:text-lg cursor-pointer relative">
+                    <span class="desktop-hotkey absolute -top-2 -right-1 bg-slate-800 text-white rounded-full w-5 h-5 text-[10px] font-black items-center justify-center border border-white hidden sm:flex">C</span>
+                    Recreation
+                </button>
+
+                <button id="btn-quest" data-action="quest" class="action-btn retro-btn flex-1 bg-[#fca5a5] hover:bg-[#f87171] active:bg-[#ef4444] text-slate-800 font-bold py-3.5 sm:py-4 px-3 rounded-2xl text-center text-sm sm:text-base md:text-lg cursor-pointer relative">
+                    <span class="desktop-hotkey absolute -top-2 -right-1 bg-slate-800 text-white rounded-full w-5 h-5 text-[10px] font-black items-center justify-center border border-white hidden sm:flex">Q</span>
+                    Quest
+                </button>
+
+                <button id="btn-menu" class="retro-btn bg-[#bfdbfe] hover:bg-[#93c5fd] text-slate-800 font-bold p-3.5 sm:p-4 rounded-2xl flex items-center justify-center cursor-pointer flex-shrink-0">
+                    <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: DESKTOP DEDICATED HISTORY LOG & KEYBOARD GUIDE (Widescreen Mode) -->
+        <div id="desktop-side-panel" class="hidden lg:flex w-80 border-3 border-slate-800 rounded-2xl bg-slate-50 p-4 flex-col justify-between relative shadow-inner flex-shrink-0">
+            <div>
+                <div class="border-b-2 border-slate-300 pb-2 mb-3 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-800 header-font flex items-center gap-1.5">
+                        📜 Activity & Audit Log
+                    </h3>
+                    <span class="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">Realtime</span>
+                </div>
+                <!-- Event Log Overlay (Desktop Side View) -->
+                <div class="h-[420px] bg-white border-2 border-slate-800 rounded-xl p-3 overflow-y-auto text-xs font-mono text-slate-700 shadow-sm flex flex-col-reverse" id="event-log-desktop">
+                    <div class="text-slate-400 italic">Welcome! Click/Hold or use keys 1-5 to train stats.</div>
+                </div>
+            </div>
+
+            <!-- Desktop Keyboard Controls Cheat-Sheet -->
+            <div class="bg-white border-2 border-slate-800 rounded-xl p-3 text-xs font-mono">
+                <div class="font-bold text-slate-800 border-b border-slate-200 pb-1 mb-2 flex items-center justify-between">
+                    <span>⌨️ Keyboard Controls</span>
+                    <span class="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">PC</span>
+                </div>
+                <div class="space-y-1 text-slate-600">
+                    <div class="flex justify-between"><span class="font-bold text-slate-800">[1] - [5]</span> <span>Train STR to LUK</span></div>
+                    <div class="flex justify-between"><span class="font-bold text-slate-800">[Space]</span> <span>Commit Preview</span></div>
+                    <div class="flex justify-between"><span class="font-bold text-slate-800">[R] / [C] / [Q]</span> <span>Rest / Rec / Quest</span></div>
+                    <div class="text-[10px] text-slate-400 mt-1 italic">Tip: Hold key to preview, release to commit!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Menu -->
+        <div id="menu-modal" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-white border-4 border-slate-800 rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center">
+                <h3 class="text-xl font-bold header-font mb-4 text-slate-800">Game Options</h3>
+                <div class="space-y-3 mb-6">
+                    <button onclick="resetGame()" class="w-full retro-btn bg-amber-200 hover:bg-amber-300 text-slate-800 font-bold py-2 rounded-lg text-sm">
+                        🔄 Reset Stats
+                    </button>
+                    <button onclick="addAP()" class="w-full retro-btn bg-purple-200 hover:bg-purple-300 text-slate-800 font-bold py-2 rounded-lg text-sm">
+                        ✨ Add 5 Ability Points
+                    </button>
+                </div>
+                <button onclick="toggleMenu()" class="retro-btn bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2 px-6 rounded-lg text-sm">
+                    Close
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript Engine -->
+    <script>
+        // State management
+        const state = {
+            day: 27,
+            monthIndex: 0,
+            months: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
+            daysInMonth: 31,
+            energy: 100,
+            maxEnergy: 100,
+            stats: { STR: 62, DEX: 43, CON: 21, INT: 4, LUK: 31, AP: 0 },
+            training: {
+                STR: { level: 1, progress: 0 },
+                DEX: { level: 1, progress: 0 },
+                CON: { level: 1, progress: 0 },
+                INT: { level: 1, progress: 0 },
+                LUK: { level: 1, progress: 0 }
+            },
+            isDesktop: true,
+            userOverride: null
+        };
+
+        // DOM elements
+        const calMonth = document.getElementById('cal-month');
+        const calDay = document.getElementById('cal-day');
+        const energyBar = document.getElementById('energy-bar');
+        const energyText = document.getElementById('energy-text');
+        const eventLogMobile = document.getElementById('event-log-mobile');
+        const eventLogDesktop = document.getElementById('event-log-desktop');
+        const charAvatar = document.getElementById('character-avatar');
+        const charEmoji = document.getElementById('char-status-emoji');
+        const charStatusText = document.getElementById('char-status-text');
+        const deviceBadgeText = document.getElementById('device-text');
+        const deviceIcon = document.getElementById('device-icon');
+
+        // Dynamic Device Detection Logic
+        function detectDeviceMode() {
+            if (state.userOverride) {
+                state.isDesktop = state.userOverride === 'desktop';
+            } else {
+                const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
+                const isWideScreen = window.innerWidth >= 1024;
+                const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+                
+                state.isDesktop = hasFinePointer && isWideScreen && !isTouch;
+            }
+
+            // Update UI elements depending on detected mode
+            if (state.isDesktop) {
+                deviceIcon.textContent = '💻';
+                deviceBadgeText.textContent = 'Desktop Mode';
+                document.querySelectorAll('.desktop-only-text').forEach(el => el.classList.remove('hidden'));
+            } else {
+                deviceIcon.textContent = '📱';
+                deviceBadgeText.textContent = 'Mobile/Tablet Mode';
+                document.querySelectorAll('.desktop-only-text').forEach(el => el.classList.add('hidden'));
+            }
+        }
+
+        function toggleDeviceModeOverride() {
+            state.userOverride = state.isDesktop ? 'mobile' : 'desktop';
+            detectDeviceMode();
+            log(`Manually toggled view mode to <b>${state.isDesktop ? 'Desktop' : 'Mobile/Tablet'}</b>.`, 'text-blue-500');
+        }
+
+        window.addEventListener('resize', detectDeviceMode);
+
+        function getCalculatedGain(stat, baseGain) {
+            const lvl = state.training[stat].level;
+            return baseGain * lvl;
+        }
+
+        // Unified Logging to Mobile & Desktop Panels
+        function log(msg, colorClass = "text-slate-700") {
+            const timeTag = `<span class="text-slate-400">[Day ${state.day} ${state.months[state.monthIndex]}]</span> `;
+            
+            [eventLogMobile, eventLogDesktop].forEach(logContainer => {
+                if (logContainer) {
+                    const entry = document.createElement('div');
+                    entry.className = `py-0.5 ${colorClass}`;
+                    entry.innerHTML = `${timeTag}${msg}`;
+                    logContainer.prepend(entry);
+                }
+            });
+        }
+
+        function updateUI() {
+            // Update Stats
+            for (const [stat, val] of Object.entries(state.stats)) {
+                const el = document.getElementById(`val-${stat}`);
+                if (el) el.textContent = val;
+            }
+
+            // Update Training Buttons
+            for (const [stat, data] of Object.entries(state.training)) {
+                const lvlEl = document.getElementById(`level-${stat}`);
+                if (lvlEl) lvlEl.textContent = `Lv. ${data.level}`;
+
+                const dotsContainer = document.getElementById(`dots-${stat}`);
+                if (dotsContainer) {
+                    const dots = dotsContainer.children;
+                    for (let i = 0; i < 3; i++) {
+                        if (i < data.progress) {
+                            dots[i].className = "w-1.5 h-1.5 rounded-full bg-blue-700 shadow-sm transition-all duration-200";
+                        } else {
+                            dots[i].className = "w-1.5 h-1.5 rounded-full bg-slate-400 transition-all duration-200";
+                        }
+                    }
+                }
+            }
+
+            calMonth.textContent = state.months[state.monthIndex];
+            calDay.textContent = state.day;
+
+            const pct = Math.max(0, Math.min(100, (state.energy / state.maxEnergy) * 100));
+            energyBar.style.width = `${pct}%`;
+            energyText.textContent = `${state.energy} / ${state.maxEnergy}`;
+
+            if (pct < 25) {
+                energyBar.style.background = 'linear-gradient(180deg, #ef4444 0%, #dc2626 100%)';
+            } else if (pct < 50) {
+                energyBar.style.background = 'linear-gradient(180deg, #eab308 0%, #ca8a04 100%)';
+            } else {
+                energyBar.style.background = 'linear-gradient(180deg, #22c55e 0%, #16a34a 100%)';
+            }
+        }
+
+        function advanceDays(days = 1) {
+            state.day += days;
+            if (state.day > state.daysInMonth) {
+                state.day = 1;
+                state.monthIndex = (state.monthIndex + 1) % 12;
+            }
+            updateUI();
+        }
+
+        function triggerFloatingText(text, isPositive = true) {
+            const container = document.getElementById('floating-popups');
+            const el = document.createElement('div');
+            el.className = `absolute font-black text-xl sm:text-2xl header-font transition-all duration-700 pointer-events-none drop-shadow-md ${isPositive ? 'text-emerald-500' : 'text-rose-500'}`;
+            el.textContent = text;
+            el.style.transform = 'translateY(0px)';
+            el.style.opacity = '1';
+
+            container.appendChild(el);
+
+            requestAnimationFrame(() => {
+                el.style.transform = 'translateY(-45px)';
+                el.style.opacity = '0';
+            });
+
+            setTimeout(() => el.remove(), 750);
+        }
+
+        function triggerCharAnimation(type = 'bounce') {
+            if (type === 'bounce') {
+                charAvatar.style.transform = 'scale(1.15) translateY(-6px)';
+                setTimeout(() => charAvatar.style.transform = 'scale(1) translateY(0)', 200);
+            } else if (type === 'shake') {
+                charAvatar.style.transform = 'translateX(-8px)';
+                setTimeout(() => charAvatar.style.transform = 'translateX(8px)', 80);
+                setTimeout(() => charAvatar.style.transform = 'translateX(-5px)', 160);
+                setTimeout(() => charAvatar.style.transform = 'translateX(0)', 240);
+            }
+        }
+
+        // Pointer Hold/Drag Engine
+        let isPointerDown = false;
+        let currentTargetButton = null;
+        const statButtons = document.querySelectorAll('.stat-btn');
+
+        function clearAllPreviews() {
+            statButtons.forEach(btn => btn.classList.remove('pressing'));
+            document.querySelectorAll('[id^="cell-"]').forEach(c => c.classList.remove('stat-preview-active'));
+            document.querySelectorAll('[id^="prev-"]').forEach(p => p.classList.add('hidden'));
+            charEmoji.textContent = '😊';
+            charStatusText.textContent = 'Ready for daily activities';
+        }
+
+        function setActivePreview(btn) {
+            if (currentTargetButton === btn) return;
+
+            clearAllPreviews();
+
+            currentTargetButton = btn;
+            if (!btn) return;
+
+            btn.classList.add('pressing');
+            const stat = btn.dataset.stat;
+            const baseGain = parseInt(btn.dataset.base);
+            const calculatedGain = getCalculatedGain(stat, baseGain);
+            const currentLevel = state.training[stat].level;
+            const currentProg = state.training[stat].progress;
+
+            const cell = document.getElementById(`cell-${stat}`);
+            const prevEl = document.getElementById(`prev-${stat}`);
+            if (cell && prevEl) {
+                cell.classList.add('stat-preview-active');
+                prevEl.textContent = `+${calculatedGain}`;
+                prevEl.classList.remove('hidden');
+            }
+
+            charEmoji.textContent = '🏋️';
+            charStatusText.textContent = `Previewing +${calculatedGain} ${stat} (${stat} Lv.${currentLevel}, ${currentProg}/3)`;
+        }
+
+        function getStatBtnAtPoint(x, y) {
+            const hitEl = document.elementFromPoint(x, y);
+            if (!hitEl) return null;
+            return hitEl.closest('.stat-btn');
+        }
+
+        window.addEventListener('pointerdown', (e) => {
+            const btn = getStatBtnAtPoint(e.clientX, e.clientY);
+            if (btn) {
+                isPointerDown = true;
+                setActivePreview(btn);
+            }
+        });
+
+        window.addEventListener('pointermove', (e) => {
+            if (!isPointerDown) return;
+            const btn = getStatBtnAtPoint(e.clientX, e.clientY);
+            setActivePreview(btn);
+        });
+
+        function commitStatTrain(btn) {
+            if (!btn) return;
+
+            const stat = btn.dataset.stat;
+            const baseGain = parseInt(btn.dataset.base);
+            const staminaCost = parseInt(btn.dataset.stamina);
+            const calculatedGain = getCalculatedGain(stat, baseGain);
+
+            if (state.energy < staminaCost) {
+                log(`Not enough stamina to train ${stat}! (Needs ${staminaCost})`, 'text-red-500 font-bold');
+                triggerCharAnimation('shake');
+                charEmoji.textContent = '😫';
+                return;
+            }
+
+            state.stats[stat] += calculatedGain;
+            state.energy = Math.max(0, state.energy - staminaCost);
+            
+            state.training[stat].progress += 1;
+            let leveledUp = false;
+
+            if (state.training[stat].progress >= 3) {
+                state.training[stat].progress = 0;
+                state.training[stat].level += 1;
+                leveledUp = true;
+            }
+
+            advanceDays(1);
+            triggerFloatingText(`+${calculatedGain} ${stat}!`);
+            triggerCharAnimation('bounce');
+
+            if (leveledUp) {
+                btn.classList.add('level-up-anim');
+                setTimeout(() => btn.classList.remove('level-up-anim'), 650);
+                triggerFloatingText(`🎉 ${stat} LVL UP! (Lv. ${state.training[stat].level})`, true);
+                log(`⚡ <b>${stat} Training Leveled Up to Lv. ${state.training[stat].level}!</b> Stat gain increased!`, 'text-blue-600 font-extrabold');
+                charEmoji.textContent = '🌟';
+                charStatusText.textContent = `${stat} Training Leveled Up!`;
+            } else {
+                log(`Trained hard! Improved <b class="text-blue-600">${stat}</b> by +${calculatedGain} (${stat} Lv.${state.training[stat].level}, ${state.training[stat].progress}/3).`);
+                charEmoji.textContent = '🔥';
+                charStatusText.textContent = `Boosted ${stat}!`;
+            }
+        }
+
+        function handlePointerUp(e) {
+            if (!isPointerDown) return;
+            isPointerDown = false;
+
+            const btn = currentTargetButton;
+            clearAllPreviews();
+            currentTargetButton = null;
+
+            if (btn) {
+                commitStatTrain(btn);
+            }
+        }
+
+        window.addEventListener('pointerup', handlePointerUp);
+        window.addEventListener('pointercancel', () => {
+            isPointerDown = false;
+            clearAllPreviews();
+            currentTargetButton = null;
+        });
+
+        // DESKTOP KEYBOARD SHORTCUT ENGINE
+        const keyMap = {
+            '1': 'STR',
+            '2': 'DEX',
+            '3': 'CON',
+            '4': 'INT',
+            '5': 'LUK'
+        };
+
+        let currentActiveKey = null;
+
+        window.addEventListener('keydown', (e) => {
+            if (e.repeat) return;
+
+            const stat = keyMap[e.key];
+            if (stat) {
+                const btn = document.querySelector(`[data-stat="${stat}"]`);
+                if (btn) {
+                    currentActiveKey = e.key;
+                    setActivePreview(btn);
+                }
+            } else if (e.key.toLowerCase() === 'r') {
+                document.getElementById('btn-rest').click();
+            } else if (e.key.toLowerCase() === 'c') {
+                document.getElementById('btn-recreation').click();
+            } else if (e.key.toLowerCase() === 'q') {
+                document.getElementById('btn-quest').click();
+            } else if (e.code === 'Space' && currentTargetButton) {
+                e.preventDefault();
+                const btn = currentTargetButton;
+                clearAllPreviews();
+                currentTargetButton = null;
+                commitStatTrain(btn);
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.key === currentActiveKey && currentTargetButton) {
+                const btn = currentTargetButton;
+                clearAllPreviews();
+                currentTargetButton = null;
+                currentActiveKey = null;
+                commitStatTrain(btn);
+            }
+        });
+
+        // Bottom Action Handlers
+        let activeActionButton = null;
+        const actionButtons = document.querySelectorAll('.action-btn');
+
+        actionButtons.forEach(btn => {
+            const action = btn.dataset.action;
+
+            const handleStart = (e) => {
+                e.preventDefault();
+                activeActionButton = btn;
+                btn.classList.add('pressing');
+
+                if (action === 'rest') {
+                    charEmoji.textContent = '😴';
+                    charStatusText.textContent = 'Previewing: Full Stamina Restore (+1 Day)';
+                } else if (action === 'recreation') {
+                    charEmoji.textContent = '🎮';
+                    charStatusText.textContent = 'Previewing: +1 Ability Point, +20 Stamina';
+                } else if (action === 'quest') {
+                    charEmoji.textContent = '⚔️';
+                    charStatusText.textContent = 'Previewing: Quest Battle (-30 Stamina)';
+                }
+            };
+
+            const handleCancel = () => {
+                if (activeActionButton === btn) {
+                    activeActionButton = null;
+                }
+                btn.classList.remove('pressing');
+                charEmoji.textContent = '😊';
+                charStatusText.textContent = 'Ready for daily activities';
+            };
+
+            const handleCommit = (e) => {
+                if (activeActionButton !== btn) return;
+                handleCancel();
+
+                if (action === 'rest') {
+                    state.energy = state.maxEnergy;
+                    advanceDays(1);
+                    triggerFloatingText(`Stamina Restored!`, true);
+                    log(`Took a full day rest. Stamina fully restored to 100!`, 'text-emerald-600 font-semibold');
+                    charEmoji.textContent = '😌';
+                } else if (action === 'recreation') {
+                    state.energy = Math.min(state.maxEnergy, state.energy + 20);
+                    state.stats.AP += 1;
+                    advanceDays(1);
+                    triggerFloatingText(`+1 AP!`, true);
+                    log(`Enjoyed leisure time! Gained <b class="text-purple-600">+1 AP</b> and restored 20 Stamina.`, 'text-amber-600 font-semibold');
+                    charEmoji.textContent = '🥳';
+                } else if (action === 'quest') {
+                    if (state.energy < 30) {
+                        log(`Too tired for a quest! Rest first.`, 'text-red-500 font-bold');
+                        triggerCharAnimation('shake');
+                        charEmoji.textContent = '😵';
+                        return;
+                    }
+                    state.energy -= 30;
+                    advanceDays(2);
+                    
+                    const goldGain = Math.floor(Math.random() * 3) + 1;
+                    const randomStat = ['STR', 'DEX', 'CON', 'INT', 'LUK'][Math.floor(Math.random() * 5)];
+                    state.stats[randomStat] += goldGain;
+
+                    triggerFloatingText(`Quest Victory! +${goldGain} ${randomStat}`, true);
+                    triggerCharAnimation('bounce');
+                    log(`Completed a Quest! Earned <b class="text-indigo-600">+${goldGain} ${randomStat}</b>! (-30 Stamina, 2 Days passed)`, 'text-indigo-600 font-semibold');
+                    charEmoji.textContent = '🏆';
+                }
+
+                updateUI();
+            };
+
+            btn.addEventListener('pointerdown', handleStart);
+            btn.addEventListener('pointerup', handleCommit);
+            btn.addEventListener('pointerleave', handleCancel);
+        });
+
+        // Menu Modal Handlers
+        const menuBtn = document.getElementById('btn-menu');
+        const menuModal = document.getElementById('menu-modal');
+
+        menuBtn.addEventListener('click', toggleMenu);
+
+        function toggleMenu() {
+            menuModal.classList.toggle('hidden');
+        }
+
+        function resetGame() {
+            state.day = 27;
+            state.monthIndex = 0;
+            state.energy = 100;
+            state.stats = { STR: 62, DEX: 43, CON: 21, INT: 4, LUK: 31, AP: 0 };
+            state.training = {
+                STR: { level: 1, progress: 0 },
+                DEX: { level: 1, progress: 0 },
+                CON: { level: 1, progress: 0 },
+                INT: { level: 1, progress: 0 },
+                LUK: { level: 1, progress: 0 }
+            };
+            updateUI();
+            log('Game reset to initial mockup values.', 'text-slate-500 font-bold');
+            toggleMenu();
+        }
+
+        function addAP() {
+            state.stats.AP += 5;
+            updateUI();
+            log('Added +5 Ability Points via options.', 'text-purple-600 font-bold');
+            toggleMenu();
+        }
+
+        // Initialize Engine
+        detectDeviceMode();
+        updateUI();
     </script>
 </body>
 </html>
