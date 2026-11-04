@@ -322,21 +322,30 @@
                     <button id="btn-add-ap" class="w-full retro-btn bg-purple-200 hover:bg-purple-300 text-slate-800 font-bold py-2 rounded-lg text-sm">
                         ✨ Add 5 Ability Points
                     </button>
+                    <button onclick="openRegisterModal()" class="w-full retro-btn bg-emerald-200 hover:bg-emerald-300 text-slate-800 font-bold py-2 rounded-lg text-sm">
+                        🔑 Register / Sign In
+                    </button>
                 </div>
                 <button id="btn-close-menu" class="retro-btn bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2 px-6 rounded-lg text-sm">
                     Close
                 </button>
             </div>
         </div>
-
     </div>
-    <!-- Load Supabase SDK first -->
+
+    <!-- 1. Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Load config file containing keys -->
+    
+    <!-- 2. Configuration & Credentials -->
     <script src="config.js"></script>
     
-    <!-- Load auth and game logic scripts -->
+    <!-- 3. Supabase Auth API Methods -->
     <script src="auth.js" defer></script>
+    
+    <!-- 4. Auth Modal & UI Handler -->
+    <script src="ui-auth.js" defer></script>
+    
+    <!-- 5. Main Game Engine -->
     <script src="game.js" defer></script>
 
 

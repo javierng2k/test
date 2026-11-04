@@ -450,6 +450,18 @@ function addAP() {
     toggleMenu();
 }
 
+// Function to open the registration modal from anywhere (like options menu)
+function openRegisterModal() {
+    // If you have a menu modal open, close it first
+    const menuModal = document.getElementById('menu-modal');
+    if (menuModal) menuModal.classList.add('hidden');
+
+    // Open the registration modal using the function from ui-auth.js
+    if (typeof toggleAuthModal === 'function') {
+        toggleAuthModal(true);
+    }
+}
+
 // 8. EVENT ATTACHMENTS & INITIALIZATION
 DOM.btnToggleDevice.addEventListener('click', toggleDeviceModeOverride);
 DOM.btnMenu.addEventListener('click', toggleMenu);
